@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A small, unofficial image editor for Cinchromatic. Move characters, paint tiles, and discover the puzzle rules yourself.">
+  <title>Cinchromatic · Interactive</title>
+  <script>
+    // Apply the theme before CSS paints; the module later connects the selector.
+    (() => {
+      let theme;
+      try {
+        const saved = localStorage.getItem('cinchromatic-theme-v1');
+        if (saved === 'light' || saved === 'dark') theme = saved;
+      } catch { /* Storage may be blocked. */ }
+      theme ??= typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23000000'/%3E%3Cpath fill='%23be2633' d='M5 2h6v4h3v3h-3v3h-2v2H7v-2H5V9H2V6h3z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="./">Cinchromatic<span>INTERACTIVE</span></a>
+    <nav class="image-nav" aria-label="Image navigation">
+      <button id="previous" aria-label="Previous image">Previous</button>
+      <label class="image-picker">Image <select id="image-select" aria-label="Choose image"></select><span>/ 30</span></label>
+      <button id="next" aria-label="Next image">Next</button>
+    </nav>
+    <div class="header-settings">
+      <label class="theme-control">Theme <select id="theme" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+      <button id="credits-button" class="quiet">Credits</button>
+    </div>
+  </header>
+  <main class="workspace">
+    <section class="board-panel" aria-label="Current image">
+      <div class="board-toolbar">
+        <span id="image-label">Image 0 · Title</span>
+        <label class="scale-control">Scale <select id="scale" aria-label="Pixel scale"><option value="auto">Fit</option><option value="4">4×</option><option value="8">8×</option><option value="12">12×</option><option value="16">16×</option></select></label>
+      </div>
+      <div id="board-viewport" class="board-viewport">
+        <canvas id="board" tabindex="0" aria-label="Cinchromatic image. Use Move to drag characters or Paint to place tiles."></canvas>
+      </div>
+      <div class="board-footer"><span id="hint">Browse the images to discover tiles.</span><span id="save-status" role="status">Saved on this device</span></div>
+    </section>
+    <aside class="editor-panel" aria-label="Editing tools">
+      <div class="panel-heading"><h1>Tools</h1><span id="mode-label">VIEW ONLY</span></div>
+      <div class="tools" role="group" aria-label="Editor mode"><button id="move" aria-pressed="true">Move <kbd>M</kbd></button><button id="paint" aria-pressed="false">Paint <kbd>P</kbd></button></div>
+      <div class="history"><button id="undo" disabled>Undo</button><button id="redo" disabled>Redo</button><button id="reset" disabled>Reset image</button></div>
+      <div class="palette-heading"><h2>Palette</h2><span id="tile-count">0 tiles</span><button id="background-edits" class="layer-toggle" aria-label="Background edits" aria-pressed="true" title="Show or hide background edits. Characters stay visible."></button></div>
+      <div id="palette" class="palette" role="group" aria-label="Discovered tiles"></div>
+      <div id="palette-empty" class="empty">Your palette begins on image 1.</div>
+      <div class="instructions"><p>Drag a character to move it. Select a tile to paint.</p><p>Use <kbd>←</kbd> <kbd>→</kbd> or Previous/Next to browse. <kbd>Ctrl Z</kbd> undoes an edit.</p><p>Explore freely. The puzzle rules are yours to figure out.</p></div>
+    </aside>
+  </main>
+  <dialog id="credits"><div class="dialog-heading"><h2>Cinchromatic</h2><button id="close-credits" aria-label="Close credits">Close</button></div><p>An unofficial, lightweight editor for the original image puzzles.</p><p>Lead designer: Katelyn Delta<br>Additional design: Panic, Cerise, Seren✩<br>Feedback: Abi, carrie z, Jack Crawford, Jake Eakle, Noneuclidean, Septacube<br>Original online viewer: winter</p><p><a href="https://caveadventure.itch.io/cinchromatic" target="_blank" rel="noopener">Original game by caveadventure</a></p><p>Inspired by <a href="https://raymondliu777.github.io/0Player/" target="_blank" rel="noopener">Raymond Liu’s 0Player editor</a>.</p><p class="secondary">Your edits stay in this browser. Puzzle mechanics are not simulated.</p></dialog>
+  <noscript>This editor needs JavaScript enabled.</noscript>
+</body>
+</html>
