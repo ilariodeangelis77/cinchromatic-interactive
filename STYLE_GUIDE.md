@@ -104,7 +104,7 @@ VT323 is a deliberate approximation. The [Google Fonts description](https://raw.
 Use `"Cascadia Mono", Consolas, "Liberation Mono", monospace` for buttons, selects, image numbers, instructions, status, badges, shortcuts, and credits body text. This gives the editor a related, restrained character while keeping frequent reading easier than small pixel lettering.
 
 - Instructions and credits body: `1rem` / `1.6`.
-- Buttons, selects, image label, footer, palette count, and mode label: `0.875rem` / `1.4` minimum.
+- Buttons, main selects, palette count, and mode label: `0.875rem` / `1.4` minimum. The compact board toolbar uses `0.8125rem` / `1.35`; its footer uses `0.75rem` / `1.35`.
 - Shortcut keycaps and INTERACTIVE badge: `0.875rem`; no wide tracking.
 - Native input/select text inherits the utility face.
 - Permit wrapping and natural control growth at increased browser text sizes. Do not truncate essential labels or shrink text to fit.
@@ -119,7 +119,8 @@ Do not use Georgia, cursive, or the current widely spaced uppercase badge treatm
 - Keep the current desktop structure: navigation above, board on the left, tools and palette on the right. Retain the existing maximum workspace width and 292px editor column.
 - Keep the 800px breakpoint and stack the editor below the board on narrow screens.
 - Retain the existing 32px desktop / 16px mobile outer padding and 24px workspace gap. Use an 8px rhythm for local groups where feasible; do not constrain layout spacing to the artwork’s 5px tile size.
-- Buttons and selects: at least 44px high. Palette targets: at least 60×60px. Maintain at least 8px between adjacent actionable controls, including history buttons.
+- Buttons and main selects: at least 44px high. The board scale select is 32px high with a fine pointer and 44px with a coarse pointer. Palette targets: at least 60×60px. Maintain at least 8px between adjacent actionable controls, including history buttons.
+- Board toolbar and footer use 4px vertical / 10px horizontal padding. Their recovered height goes into the board viewport (56px with a fine pointer, 44px with a coarse pointer), preserving roughly the same total panel height while giving Fit more room.
 - Keep the image picker and navigation labels visible. Let navigation and history controls wrap when necessary.
 - Preserve `place-items: safe center` and internal board scrolling so enlarged images remain reachable at their top and left edges.
 - Add only the specified Light/Dark theme select. Do not add a hero section, decorative background grid, artwork outside the current image/palette, or additional theme settings.
