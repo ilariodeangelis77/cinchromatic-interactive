@@ -83,6 +83,13 @@ export class Editor {
     board.characters = board.characters.filter(actor => actor.id !== id).concat(character);
     return this.commit(before);
   }
+  deleteCharacter(id) {
+    const board = this.boards[this.current];
+    if (!board.characters.some(actor => actor.id === id)) return false;
+    const before = this.snapshot();
+    board.characters = board.characters.filter(actor => actor.id !== id);
+    return this.commit(before);
+  }
   paintCell(tileId, cell) {
     if (!this.validCell(cell)) return false;
     if (!this.palette().some(tile => tile.id === tileId)) throw new Error('Choose a tile from the discovered palette.');

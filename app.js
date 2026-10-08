@@ -84,7 +84,7 @@ function updateControls() {
   $('undo').disabled = !history.undo.length; $('redo').disabled = !history.redo.length; $('reset').disabled = index === 0;
   $('background-edits').disabled = index === 0;
   $('background-edits').setAttribute('aria-pressed', String(editor.backgroundVisible[index]));
-  $('hint').textContent = index === 0 ? 'Browse the images to discover tiles.' : mode === 'move' ? 'Drag a character. Release to snap to a cell.' : 'Click or drag to paint. Each stroke is one edit.';
+  $('hint').textContent = index === 0 ? 'Browse the images to discover tiles.' : mode === 'move' ? selectedCharacter ? 'Character selected · Delete / Backspace to remove.' : 'Drag a character. Release to snap to a cell.' : 'Click or drag to paint. Each stroke is one edit.';
   canvas.classList.toggle('painting', mode === 'paint' && index > 0); canvas.classList.toggle('dragging', gesture?.kind === 'move');
   canvas.setAttribute('aria-label', index === 0 ? 'Cinchromatic title image, view only.' : `Cinchromatic image ${index}. ${mode === 'move' ? 'Drag characters onto grid cells.' : 'Click or drag to paint tiles.'}`);
 }
@@ -174,6 +174,7 @@ canvas.addEventListener('lostpointercapture', () => { if (gesture) cancelGesture
 window.addEventListener('blur', cancelGesture);
 function changeMode(next) { cancelGesture(); mode = next; selectedCharacter = null; updateControls(); render(); }
 function historyAction(action) { cancelGesture(); selectedCharacter = null; editor[action](); finishEdit(); }
+function deleteCharacter(id) { cancelGesture(); const removed = editor.deleteCharacter(id); if (removed) selectedCharacter = null; finishEdit(); return removed; }
 function backgroundVisibility(visible) { cancelGesture(); editor.setBackgroundVisible(visible); finishEdit(); }
 $('previous').onclick = () => navigate(Math.max(0, editor.current - 1));
 $('next').onclick = () => navigate(Math.min(30, editor.current + 1));
@@ -190,7 +191,8 @@ window.addEventListener('keydown', event => {
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') { event.preventDefault(); historyAction(event.shiftKey ? 'redo' : 'undo'); }
   else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') { event.preventDefault(); historyAction('redo'); }
   else if (!event.ctrlKey && !event.metaKey && !event.altKey) {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); navigate(Math.max(0, Math.min(30, editor.current + (event.key === 'ArrowLeft' ? -1 : 1)))); }
+    if ((event.key === 'Delete' || event.key === 'Backspace') && event.target === canvas && mode === 'move' && editor.current) { event.preventDefault(); if (selectedCharacter) deleteCharacter(selectedCharacter); }
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); navigate(Math.max(0, Math.min(30, editor.current + (event.key === 'ArrowLeft' ? -1 : 1)))); }
     else if (event.key.toLowerCase() === 'm' && editor.current) changeMode('move');
     else if (event.key.toLowerCase() === 'p' && editor.current) changeMode('paint');
   }
@@ -220,6 +222,7 @@ if (modelContext?.registerTool) {
     { name: 'navigate_image', description: 'Visit an image numbered 0 through 30, revealing its tiles in the palette.', inputSchema: schema({ image: { ...integer, minimum: 0, maximum: 30 } }), execute(input) { requireInput(input, ['image']); navigate(input.image); return summary(); } },
     { name: 'set_background_visibility', description: 'Show or hide the single background edit layer. Characters always remain above the visible background.', inputSchema: schema({ visible: { type: 'boolean' } }), execute(input) { requireInput(input, ['visible']); backgroundVisibility(input.visible); return summary(); } },
     { name: 'move_character', description: 'Move a character to an editable cell. Cells are indexed from zero in row order.', inputSchema: schema({ id: { type: 'string' }, cell: integer }), execute(input) { requireInput(input, ['id', 'cell']); cancelGesture(); if (typeof input.id !== 'string' || !editor.validCell(input.cell) || !editor.boards[editor.current].characters.some(actor => actor.id === input.id)) throw new Error('Unknown character or invalid cell.'); editor.move(input.id, input.cell); selectedCharacter = null; finishEdit(); return summary(); } },
+    { name: 'delete_character', description: 'Delete one character from the current image without changing its background. Deletion is undoable.', inputSchema: schema({ id: { type: 'string' } }), execute(input) { requireInput(input, ['id']); cancelGesture(); if (typeof input.id !== 'string' || !editor.boards[editor.current].characters.some(actor => actor.id === input.id)) throw new Error('Unknown character.'); deleteCharacter(input.id); return summary(); } },
     { name: 'paint_cells', description: 'Paint discovered tiles in one undoable edit. Background tiles paint beneath characters and reveal background edits; character tiles preserve the background.', inputSchema: schema({ tileId: integer, cells: { type: 'array', items: integer, minItems: 1 } }), execute(input) { requireInput(input, ['tileId', 'cells']); cancelGesture(); if (!Number.isInteger(input.tileId) || !Array.isArray(input.cells) || !input.cells.length) throw new Error('Supply a tile and at least one cell.'); editor.paint(input.tileId, input.cells); selectedCharacter = null; finishEdit(); return summary(); } },
     { name: 'edit_history', description: 'Undo, redo, or reset the current image. Reset is undoable.', inputSchema: schema({ action: { type: 'string', enum: ['undo', 'redo', 'reset'] } }), execute(input) { requireInput(input, ['action']); if (!['undo', 'redo', 'reset'].includes(input.action)) throw new Error('Unknown history action.'); historyAction(input.action); return summary(); } },
   ];
