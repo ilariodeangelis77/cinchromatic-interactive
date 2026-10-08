@@ -35,6 +35,7 @@ Publishing uses the authenticated GitHub CLI account through Git's credential he
 
 - **Previous / Next**, the image selector, or **Left / Right**: browse images 0–30. Wheel-based image navigation is disabled; the wheel scrolls normally. Keyboard navigation leaves native select controls alone.
 - **Move / M**: drag a character with mouse or touch. Release to snap it to a grid cell. Walls and overlapping characters are allowed. Dragging outside the grid cancels the move; Escape cancels an active gesture.
+- **Delete / Backspace**: in Move mode, click a character, then press Delete or Backspace while the board has focus. Removes only that character and leaves the background intact. Deletion is undoable; no extra button is added.
 - **Paint / P**: select a palette tile, then click or drag across cells. Background tiles paint underneath characters; character tiles replace characters in that cell and preserve the background.
 - **Background edits**: toggle the single background edit layer. When hidden, the original background shows beneath the current characters. Painting a background tile shows the edit layer again. Each image remembers its visibility; undo/redo changes edits without changing this view preference.
 - **Undo / Ctrl+Z** and **Redo / Ctrl+Shift+Z / Ctrl+Y**: reverse edits. Cmd shortcuts work on macOS. One stroke or drag is one edit, with up to 200 undo steps per image.
@@ -60,7 +61,7 @@ Tests independently decode the original PNGs to verify untouched artwork pixel-f
 
 `tools/extract-assets.ps1` regenerates bundled assets from the [original online viewer](https://html-classic.itch.zone/html/18447195/index.html). It requires PowerShell, internet access, and Windows System.Drawing. Running the app does not require any of these. Artwork and puzzle design remain credited to the original creators; this project does not claim ownership of their assets.
 
-Optional WebMCP browser tools expose read, navigate, move, paint, background visibility, and history actions using the same state as the interface. Unsupported browsers simply ignore this integration.
+Optional WebMCP browser tools expose read, navigate, move, delete character, paint, background visibility, and history actions using the same state as the interface. Unsupported browsers simply ignore this integration.
 
 ## Visual style and fonts
 

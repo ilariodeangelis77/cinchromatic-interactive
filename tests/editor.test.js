@@ -60,6 +60,47 @@ test('overlapping characters remain separate and movable', () => {
   assert.equal(editor.snapshot().characters.length, 2);
 });
 
+test('deleting an original character preserves background edits and is one undoable action', () => {
+  const editor = make(), actor = editor.snapshot().characters[0];
+  editor.paint(0, [actor.cell]); editor.setBackgroundVisible(false);
+  const before = editor.snapshot(), historyLength = editor.histories[1].undo.length;
+  assert.equal(editor.deleteCharacter(actor.id), true);
+  assert.equal(editor.snapshot().characters.length, 0);
+  assert.deepEqual(editor.snapshot().terrain, before.terrain);
+  assert.deepEqual(editor.initial[1].characters, [actor]);
+  assert.equal(editor.backgroundVisible[1], false);
+  assert.equal(editor.histories[1].undo.length, historyLength + 1);
+  editor.undo(); assert.deepEqual(editor.snapshot(), before);
+  editor.redo(); assert.equal(editor.snapshot().characters.length, 0);
+});
+
+test('deleting one overlapping character preserves the other and invalid selections are no-ops', () => {
+  const editor = make(16), actors = editor.snapshot().characters;
+  editor.move(actors[0].id, actors[1].cell);
+  const overlapping = editor.snapshot();
+  editor.deleteCharacter(actors[0].id);
+  assert.deepEqual(editor.snapshot().characters, [actors[1]]);
+  assert.deepEqual(editor.snapshot().terrain, overlapping.terrain);
+  const historyLength = editor.histories[16].undo.length;
+  assert.equal(editor.deleteCharacter(actors[0].id), false);
+  assert.equal(editor.deleteCharacter(undefined), false);
+  assert.equal(editor.histories[16].undo.length, historyLength);
+  editor.undo(); assert.deepEqual(editor.snapshot(), overlapping);
+  const title = new Editor(SOURCE);
+  assert.equal(title.deleteCharacter(actors[0].id), false);
+});
+
+test('character deletion persists independently per image and reset restores original characters', () => {
+  const editor = make(), actor = editor.snapshot().characters[0];
+  editor.deleteCharacter(actor.id); editor.visit(2);
+  const restored = new Editor(SOURCE, JSON.parse(JSON.stringify(editor.serialize())));
+  assert.deepEqual(restored.boards[2], restored.initial[2]);
+  assert.equal(restored.boards[1].characters.length, 0);
+  restored.visit(1); restored.reset();
+  assert.deepEqual(restored.snapshot(), restored.initial[1]);
+  restored.undo(); assert.equal(restored.snapshot().characters.length, 0);
+});
+
 test('out-of-bounds and separator moves leave state and history unchanged', () => {
   const editor = make(30), actor = editor.snapshot().characters[0], before = editor.snapshot();
   const separator = SOURCE.levels[30].cells.indexOf(null);
