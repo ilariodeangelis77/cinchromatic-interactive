@@ -3,6 +3,7 @@ import { lineCells } from './editor.js';
 import { loadEditor, saveEditor } from './storage.js';
 import { createThemeController } from './theme.js';
 import { PALETTE_ROWS, paletteLabel } from './palette.js';
+import { gridPoint, characterDrag } from './grid.js';
 const $ = id => document.getElementById(id);
 const theme = createThemeController({
   getStorage: () => window.localStorage,
@@ -70,7 +71,7 @@ function render() {
       if (gesture.target !== null) {
         context.globalAlpha = .5; context.drawImage(tileCanvases[actor.tileId].actor, ...cellPosition(gesture.target)); context.globalAlpha = 1;
       }
-      context.drawImage(tileCanvases[actor.tileId].actor, Math.round(gesture.pixel[0] - gesture.offset[0]), Math.round(gesture.pixel[1] - gesture.offset[1]));
+      context.drawImage(tileCanvases[actor.tileId].actor, ...gesture.origin);
     }
   }
 }
@@ -131,10 +132,7 @@ function navigate(index) {
 function point(event) {
   const rect = canvas.getBoundingClientRect();
   const pixel = [(event.clientX - rect.left) * canvas.width / rect.width, (event.clientY - rect.top) * canvas.height / rect.height];
-  const level = SOURCE.levels[editor.current];
-  const column = Math.floor((pixel[0] - 1) / 5), row = Math.floor((pixel[1] - 1) / 5), cell = row * level.columns + column;
-  const valid = column >= 0 && column < level.columns && row >= 0 && row < level.rows && editor.validCell(cell);
-  return { pixel, coordinates: [column, row], cell: valid ? cell : null };
+  return gridPoint(SOURCE.levels[editor.current], pixel);
 }
 canvas.addEventListener('pointerdown', event => {
   if (!editor.current || gesture || event.button !== 0) return;
@@ -142,7 +140,7 @@ canvas.addEventListener('pointerdown', event => {
   canvas.focus({ preventScroll: true }); event.preventDefault();
   if (mode === 'move') {
     const actor = actorAt(hit.cell); selectedCharacter = actor?.id || null;
-    if (actor) { const origin = cellPosition(hit.cell); gesture = { kind: 'move', id: actor.id, pointer: event.pointerId, target: hit.cell, pixel: hit.pixel, offset: [hit.pixel[0] - origin[0], hit.pixel[1] - origin[1]] }; }
+    if (actor) { const origin = cellPosition(hit.cell); gesture = { kind: 'move', id: actor.id, pointer: event.pointerId, target: hit.cell, origin, offset: [hit.pixel[0] - origin[0], hit.pixel[1] - origin[1]] }; }
   } else if (selectedTile !== null) {
     gesture = { kind: 'paint', pointer: event.pointerId, before: editor.snapshot(), last: hit.coordinates }; editor.paintCell(selectedTile, hit.cell);
   }
@@ -152,7 +150,7 @@ canvas.addEventListener('pointerdown', event => {
 function updateGesture(event) {
   if (!gesture || event.pointerId !== gesture.pointer) return;
   const hit = point(event);
-  if (gesture.kind === 'move') { gesture.target = hit.cell; gesture.pixel = hit.pixel; }
+  if (gesture.kind === 'move') Object.assign(gesture, characterDrag(SOURCE.levels[editor.current], hit.pixel, gesture.offset));
   else if (hit.cell === null) gesture.last = null;
   else {
     const level = SOURCE.levels[editor.current], cells = gesture.last ? lineCells(gesture.last, hit.coordinates) : [hit.coordinates];

@@ -34,7 +34,7 @@ Publishing uses the authenticated GitHub CLI account through Git's credential he
 ## Controls
 
 - **Previous / Next**, the image selector, or **Left / Right**: browse images 0–30. Wheel-based image navigation is disabled; the wheel scrolls normally. Keyboard navigation leaves native select controls alone.
-- **Move / M**: drag a character with mouse or touch. Release to snap it to a grid cell. Walls and overlapping characters are allowed. Dragging outside the grid cancels the move; Escape cancels an active gesture.
+- **Move / M**: drag a character with mouse or touch. The grab position stays fixed within the sprite; its center determines the destination preview and snapped cell. Walls and overlapping characters are allowed. Releasing outside the board, or with the sprite center over a border or black separator, cancels the move; Escape cancels an active gesture.
 - **Delete / Backspace**: in Move mode, click a character, then press Delete or Backspace while the board has focus. Removes only that character and leaves the background intact. Deletion is undoable; no extra button is added.
 - **Paint / P**: select a palette tile, then click or drag across cells. Background tiles paint underneath characters; character tiles replace characters in that cell and preserve the background.
 - **Background edits**: toggle the single background edit layer. When hidden, the original background shows beneath the current characters. Painting a background tile shows the edit layer again. Each image remembers its visibility; undo/redo changes edits without changing this view preference.
