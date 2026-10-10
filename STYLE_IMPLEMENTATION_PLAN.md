@@ -1,4 +1,4 @@
-# Implement the Cinchromatic style revision
+# Implement the Cinchro Inter style revision
 
 Status: implemented and verified, 8 October 2026. The checklist below records the delivered revision.
 

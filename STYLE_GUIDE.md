@@ -1,4 +1,4 @@
-# Cinchromatic web editor — style specification
+# Cinchro Inter — style specification
 
 Status: implemented, 8 October 2026. This document records the visual specification used by the local editor's Light and Dark modes.
 

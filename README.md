@@ -1,8 +1,8 @@
-# Cinchromatic Interactive
+# Cinchro Inter
 
 A static image editor for [Cinchromatic by caveadventure](https://caveadventure.itch.io/cinchromatic), inspired by [Raymond Liu’s 0Player editor](https://raymondliu777.github.io/0Player/). It preserves the source artwork and leaves all puzzle rules to the player.
 
-[Open Cinchromatic Interactive](https://ilariodeangelis77.github.io/cinchromatic-interactive/)
+[Open Cinchro Inter](https://ilariodeangelis77.github.io/cinchro-inter/)
 
 ## Run
 
@@ -17,7 +17,7 @@ Open <http://127.0.0.1:4173>. Stop the server with Ctrl+C. Keep this same addres
 
 ## GitHub Pages
 
-Source repository: [ilariodeangelis77/cinchromatic-interactive](https://github.com/ilariodeangelis77/cinchromatic-interactive).
+Source repository: [ilariodeangelis77/cinchro-inter](https://github.com/ilariodeangelis77/cinchro-inter).
 
 The `main` branch contains source, tests, and documentation. GitHub Pages publishes the root of `gh-pages`, which contains only the contents of `dist/`. The `.nojekyll` file keeps this a plain static site. Screenshots and local browser saves are not published.
 
